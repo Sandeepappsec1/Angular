@@ -1,28 +1,27 @@
-name: Semgrep Code Scan
+name: semgrep-scan
+
 on:
   push:
-    branches: [ main, devsecops-learning ]
+    branches: [ main ]
   pull_request:
 
 jobs:
   semgrep:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node (for repo context)
-        uses: actions/setup-node@v4
-        with:
-          node-version: 16
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Install Semgrep
-        run: pip install semgrep
-      - name: Run Semgrep Scan
-        run: semgrep --config auto --error --json > semgrep-report.json || true
-      - name: Upload semgrep report
-        uses: actions/upload-artifact@v3
+        run: |
+          pip install semgrep
+
+      - name: Run Semgrep scan
+        run: semgrep --config auto --json > semgrep-report.json
+
+      - name: Upload Semgrep report
+        uses: actions/upload-artifact@v4   # <-- FIXED!
         with:
           name: semgrep-report
           path: semgrep-report.json
