@@ -1,7 +1,31 @@
-- name: Run Trivy scan (action)
-  uses: aquasecurity/trivy-action@v0.33.1   # <-- pin to an existing release
-  with:
-    image-ref: my-org/my-app:${{ github.sha }}
-    format: json
-    output: trivy-report.json
-    severity: CRITICAL,HIGH,MEDIUM
+name: scan-trivy
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build Docker image
+        run: docker build -t my-org/my-app:${{ github.sha }} .
+
+      - name: Run Trivy action
+        uses: aquasecurity/trivy-action@v0.33.1
+        with:
+          image-ref: my-org/my-app:${{ github.sha }}
+          format: json
+          output: trivy-report.json
+          severity: CRITICAL,HIGH,MEDIUM
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.json
