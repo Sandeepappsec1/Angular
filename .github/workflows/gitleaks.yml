@@ -14,7 +14,7 @@ jobs:
         with:
           args: detect --source . --report-path gitleaks-report.json --redact --exit-code 1
       - name: Upload gitleaks report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gitleaks-report
           path: gitleaks-report.json
