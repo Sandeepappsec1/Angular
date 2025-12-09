@@ -1,20 +1,24 @@
-name: Gitleaks Secret Scan
+name: gitleaks-scan
 on:
-  push:
-    branches: [ devsecops-learning, main ]
   pull_request:
+  push:
+    branches: [ main ]
 
 jobs:
-  gitleaks:
+  scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Run gitleaks
+      - name: Checkout (full history for better scanning)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks (official action v2)
         uses: gitleaks/gitleaks-action@v2
-        with:
-          args: detect --source . --report-path gitleaks-report.json --redact --exit-code 1
-      - name: Upload gitleaks report
-        uses: actions/upload-artifact@v4
-        with:
-          name: gitleaks-report
-          path: gitleaks-report.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        # required for PR scanning/comments
+          # If your repo is under an Organization you must set GITLEAKS_LICENSE as an org or repo secret:
+          # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          # Optional environment flags the action accepts (see README):
+          # GITLEAKS_CONFIG: .gitleaks.toml
+          # GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"
